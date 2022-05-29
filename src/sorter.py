@@ -1,5 +1,6 @@
+# coding=utf-8
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional, Union, List, Dict
 
 import openpyxl
 from openpyxl import Workbook
@@ -18,19 +19,19 @@ class Sorter:
     def __init__(self, workbook: Optional[Workbook] = None):
         self._input_wb = workbook
         self._output_wb = Workbook()
-        self._sheets_for_sort: list[Worksheet] = []
+        self._sheets_for_sort: List[Worksheet] = []
 
-    def add_sheets(self, sheets_names: list[str]):
+    def add_sheets(self, sheets_names: List[str]) -> List[Worksheet]:
         for name in sheets_names:
             self._sheets_for_sort.append(self.wb[name])
         return self._sheets_for_sort
 
     @property
-    def wb(self):
+    def wb(self) -> Workbook:
         return self._input_wb
 
     @wb.setter
-    def wb(self, workbook: Union[Workbook, str, Path]):
+    def wb(self, workbook: Union[Workbook, str, Path]) -> None:
         if isinstance(workbook, str):
             file_path = Path(workbook)
             wb = openpyxl.load_workbook(file_path)
@@ -42,7 +43,7 @@ class Sorter:
             raise UnsupportedTypeException
         self._input_wb = wb
 
-    def sort(self):
+    def sort(self) -> Dict[str, List[Device]]:
         sorted_circuitry = {}
         for sheet in self._sheets_for_sort:
             wire_section = sheet.title
@@ -52,7 +53,8 @@ class Sorter:
             sorted_circuitry[wire_section] = sorted_devices
         return sorted_circuitry
 
-    def _parse_devices(self, devices: dict):
+    @staticmethod
+    def _parse_devices(devices: Dict[str, List[str]]) -> List[Device]:
         parsed_devices = []
 
         for device_name, markers in devices.items():
@@ -69,7 +71,8 @@ class Sorter:
             parsed_devices.append(d)
         return parsed_devices
 
-    def _load_sheet_contents(self, worksheet: Worksheet, column: str = INPUT_DATA_COLUMN):
+    @staticmethod
+    def _load_sheet_contents(worksheet: Worksheet, column: str = INPUT_DATA_COLUMN) -> Dict[str, List[str]]:
         devices_in_sheet = {}
         current_device = None
 
@@ -77,27 +80,33 @@ class Sorter:
             if 'Device' in cell.value:
                 current_device = cell.value
                 devices_in_sheet[current_device] = []
-            else:
-                devices_in_sheet[current_device].append(cell.value)
+                continue
+            devices_in_sheet[current_device].append(cell.value)
+
         return devices_in_sheet
 
-    def dump_circuitry(self, circuitry: dict):
+    def dump_circuitry(self, circuitry: Dict[str, List[Device]]) -> None:
         for wire_section, devices in circuitry.items():
             ws = self._output_wb.create_sheet(wire_section)
             self._write_markers(worksheet=ws, devices=devices)
 
-        del self._output_wb['Sheet']  # delete created by default sheet
+        try:
+            del self._output_wb['Sheet']  # delete created by default sheet if exists
+        except KeyError:
+            pass
 
-    def save_to_file(self, file_path: Path):
+    def save_to_file(self, file_path: Path) -> None:
         filename = f'{file_path.stem}_sorted{file_path.suffix}'
         self._output_wb.save(filename)
 
-    def reset(self, workbook: Workbook = None):
+    def reset(self, workbook: Optional[Workbook] = None) -> None:
+        """Resets object to clear state"""
         self._input_wb = workbook
         self._output_wb = Workbook()
-        self._sheets_for_sort: list[Worksheet] = []
+        self._sheets_for_sort.clear()
 
-    def _write_markers(self, worksheet: Worksheet, devices: list[Device], column: int = 1):
+    @staticmethod
+    def _write_markers(worksheet: Worksheet, devices: List[Device], column: int = 1) -> None:
         row = 1
         for device in devices:
             device_sell = worksheet.cell(row=row, column=column, value=device.name)

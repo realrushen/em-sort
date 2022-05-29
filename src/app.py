@@ -3,7 +3,7 @@ from sorter import Sorter
 
 
 class App:
-    def __init__(self, name, ):
+    def __init__(self, name: str):
         self.gui = GUI(app_name=name)
         self.backend = Sorter()
 

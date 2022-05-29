@@ -1,19 +1,10 @@
-import os
-import sys
-from pathlib import Path, PurePath
+from pathlib import Path
 
 import PySimpleGUI as sg
 
 from sorter import Sorter
+from utils import resource_path
 
-
-def resource_path(relative_path):
-    """ Get absolute path to resource, works for dev and for PyInstaller """
-    base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
-    return os.path.join(base_path, relative_path)
-
-
-# ASSETS_DIR = PurePath(__file__).parent / 'assets'
 ASSETS_DIR = resource_path('assets')
 
 
@@ -53,7 +44,7 @@ class GUI:
 
             try:
                 self.handle_event(backend=backend, event=event, values=values)
-            except Exception as e:
+            except Exception as e:  # FIXME: add exception handling for different use cases
                 sg.popup_error_with_traceback('Ошибка', e)
                 self.window['-PBAR-'].update_bar(current_count=0)
             finally:
@@ -62,11 +53,11 @@ class GUI:
 
         self.window.close()
 
-    def handle_event(self, backend, event, values):
+    def handle_event(self, backend: Sorter, event, values):
 
         if event == '-SORT-':
             self.window['-SORT-'].update(disabled=True)
-            self.window['-PBAR-'].update_bar(current_count=0)
+            self.window['-PBAR-'].update_bar(current_count=0)  # FIXME: make progress bar updates dynamic not hardcoded
             file = values['-FILE-']
             wire_sections = values['-WIRE SECTIONS-']
             backend.wb = file

@@ -1,3 +1,6 @@
+# coding=utf-8
+from typing import List, Tuple, Union, Optional
+
 from exceptions import UnsupportedMarkerFormatException
 
 
@@ -9,11 +12,11 @@ class Marker:
 
     def __init__(self, label: str):
         self.label = label
-        self.wire_name = None
-        self.device = None
-        self.jack = None
-        self.contact = None
-        self.connection = None
+        self.wire_name: Optional[str] = None
+        self.device: Optional[str] = None
+        self.jack: Optional[str] = None
+        self.contact: Optional[str] = None
+        self.connection: Optional[str] = None
 
     def parse(self):
         """
@@ -45,7 +48,7 @@ class Marker:
         return self
 
     @property
-    def address(self):
+    def address(self) -> str:
         if self.jack:
             address_params = [self.device, self.jack, self.contact]
         else:
@@ -56,11 +59,11 @@ class Marker:
 
         return self.ADDRESS_SEP.join(address_params)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         marker_repr = repr(self.label)
         return f'Marker(label={marker_repr})'
 
-    def __str__(self):
+    def __str__(self) -> str:
         marker_data = [self.address]
         if self.wire_name:
             marker_data.append(self.wire_name)
@@ -73,27 +76,27 @@ class Wire:
         self.to = to
 
     @property
-    def name(self):
+    def name(self) -> str:
         assert self.frm.wire_name == self.to.wire_name
         return self.frm.wire_name
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'{self.frm} -> {self.to}'
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'Wire(frm={repr(self.frm)}, to={repr(self.to)})'
 
 
 class Device:
     def __init__(self, name: str):
         self.name = name
-        self.wires = []
+        self.wires: List[Wire] = []
 
-    def add_wires(self, wires: list[Wire]):
+    def add_wires(self, wires: List[Wire]) -> None:
         self.wires.extend(wires)
 
     @staticmethod
-    def get_sorting_priority(wire: Wire) -> tuple:
+    def get_sorting_priority(wire: Wire) -> Union[Tuple[int, str, str], Tuple[int, str, str, str]]:
         is_internal = 1 if wire.frm.device == wire.to.device else 0
         if wire.frm.jack:
             return is_internal, wire.frm.jack, wire.to.device, wire.frm.contact
@@ -103,11 +106,11 @@ class Device:
         self.wires = sorted(self.wires, key=self.get_sorting_priority)
         return self
 
-    def markers(self):
+    def markers(self) -> List[Marker]:
         markers = []
         for wire in self.wires:
             markers.extend([wire.frm, wire.to])
         return markers
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'Device(name={repr(self.name)}, wires={self.wires}'
