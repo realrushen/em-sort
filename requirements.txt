@@ -1,0 +1,9 @@
+et-xmlfile==1.1.0; python_version >= "3.6" \
+    --hash=sha256:a2ba85d1d6a74ef63837eed693bcb89c3f752169b0e3e7ae5b16ca5e1b3deada \
+    --hash=sha256:8eb9e2bc2f8c97e37a2dc85a09ecdcdec9d8a396530a6d5a33b30b9a92da0c5c
+openpyxl==3.0.9; python_version >= "3.6" \
+    --hash=sha256:8f3b11bd896a95468a4ab162fc4fcd260d46157155d1f8bfaabb99d88cfcf79f \
+    --hash=sha256:40f568b9829bf9e446acfffce30250ac1fa39035124d55fc024025c41481c90f
+pysimplegui==4.60.0 \
+    --hash=sha256:586d40fa2769a5075bc109f8ccd5af735ce3914edde1d721ee8ea855d76fc089 \
+    --hash=sha256:72a9c7617317dca1aacb7e7af2a678eb70113842fe9cd03d5ec6ff9f530c7fcf
