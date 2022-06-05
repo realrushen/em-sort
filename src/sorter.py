@@ -2,13 +2,12 @@
 from pathlib import Path
 from typing import Optional, Union, List, Dict
 
-import openpyxl
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill
 from openpyxl.worksheet.worksheet import Worksheet
 
 from entities import Device, Marker, Wire
-from exceptions import UnsupportedTypeException
+from exceptions import UnsupportedTypeException, SheetDoesNotExistsException
 from utils import pairwise
 
 
@@ -23,25 +22,22 @@ class Sorter:
 
     def add_sheets(self, sheets_names: List[str]) -> List[Worksheet]:
         for name in sheets_names:
-            self._sheets_for_sort.append(self.wb[name])
+            try:
+                self._sheets_for_sort.append(self.wb[name])
+            except KeyError:
+                raise SheetDoesNotExistsException(f'Worksheet {name} does not exist.')
         return self._sheets_for_sort
 
     @property
-    def wb(self) -> Workbook:
+    def wb(self) -> Optional[Workbook]:
         return self._input_wb
 
     @wb.setter
-    def wb(self, workbook: Union[Workbook, str, Path]) -> None:
-        if isinstance(workbook, str):
-            file_path = Path(workbook)
-            wb = openpyxl.load_workbook(file_path)
-        elif isinstance(workbook, Path):
-            wb = openpyxl.load_workbook(workbook)
-        elif isinstance(workbook, Workbook):
-            wb = workbook
+    def wb(self, workbook: Workbook) -> None:
+        if isinstance(workbook, Workbook):
+            self._input_wb = workbook
         else:
             raise UnsupportedTypeException
-        self._input_wb = wb
 
     def sort(self) -> Dict[str, List[Device]]:
         sorted_circuitry = {}

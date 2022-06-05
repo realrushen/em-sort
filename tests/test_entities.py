@@ -199,8 +199,12 @@ class TestDevice:
         [
             pytest.param(Wire(frm=Marker('A1:X5-1 2').parse(), to=Marker('A1:X5-3 2').parse()), (1, 'X5', 'A1', '1')),
             pytest.param(Wire(frm=Marker('A1:X5-2 29').parse(), to=Marker('X5:18:1 29').parse()), (0, 'X5', 'X5', '2')),
-            pytest.param(Wire(frm=Marker('SAC3:2.3 1').parse(), to=Marker('SAC3:1.1 1').parse()), (1, '2.3', 'SAC3')),
-            pytest.param(Wire(frm=Marker('ADR1:2 D13').parse(), to=Marker('X0:20:1 D13').parse()), (0, '2', 'X0')),
+            pytest.param(
+                Wire(frm=Marker('SAC3:2.3 1').parse(), to=Marker('SAC3:1.1 1').parse()), (1, 'SAC3', '1', '2.3')
+            ),
+            pytest.param(
+                Wire(frm=Marker('ADR1:2 D13').parse(), to=Marker('X0:20:1 D13').parse()), (0, 'X0', 'D13', '2')
+            ),
         ]
     )
     def test__get_sorting_priority(self, wire, expected_priority):

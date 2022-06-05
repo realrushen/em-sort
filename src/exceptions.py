@@ -12,3 +12,7 @@ class UnsupportedTypeException(EMSortException):
 
 class InvalidMarkersPairException(EMSortException):
     pass
+
+
+class SheetDoesNotExistsException(EMSortException):
+    pass
