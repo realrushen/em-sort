@@ -8,3 +8,7 @@ class UnsupportedMarkerFormatException(EMSortException):
 
 class UnsupportedTypeException(EMSortException):
     pass
+
+
+class InvalidMarkersPairException(EMSortException):
+    pass

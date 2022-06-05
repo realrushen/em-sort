@@ -100,7 +100,7 @@ class Sorter:
         self._output_wb.save(filename)
 
     def reset(self, workbook: Optional[Workbook] = None) -> None:
-        """Resets object to clear state"""
+        """Resets object to empty state"""
         self._input_wb = workbook
         self._output_wb = Workbook()
         self._sheets_for_sort.clear()
@@ -112,6 +112,6 @@ class Sorter:
             device_sell = worksheet.cell(row=row, column=column, value=device.name)
             device_sell.fill = PatternFill(fill_type='solid', start_color='00C0C0C0', end_color='00C0C0C0')
             row += 1
-            for marker in device.markers():
+            for marker in device.markers:
                 worksheet.cell(row=row, column=column, value=marker.label)
                 row += 1

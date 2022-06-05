@@ -1,7 +1,7 @@
 # coding=utf-8
 from typing import List, Tuple, Union, Optional
 
-from exceptions import UnsupportedMarkerFormatException
+from exceptions import UnsupportedMarkerFormatException, InvalidMarkersPairException
 
 
 class Marker:
@@ -43,14 +43,14 @@ class Marker:
         if self.contact.count(self.JACK_SEP) == 1:
             self.jack, self.contact = self.contact.split(self.JACK_SEP)
             # check that self.jack and self.contact contains useful information
-            assert self.jack
-            assert self.contact
+            if not self.jack or not self.contact:
+                raise UnsupportedMarkerFormatException
         return self
 
     @property
     def address(self) -> str:
         if self.jack:
-            address_params = [self.device, self.jack, self.contact]
+            address_params = [self.device, self.JACK_SEP.join([self.jack, self.contact])]
         else:
             address_params = [self.device, self.contact]
 
@@ -69,15 +69,33 @@ class Marker:
             marker_data.append(self.wire_name)
         return self.WIRE_SEP.join(marker_data)
 
+    def __hash__(self):
+        return hash((self.label, self.wire_name, self.device, self.jack, self.contact, self.connection))
+
+    def __eq__(self, other):
+        try:
+            return (self.label, self.wire_name, self.device, self.jack, self.contact, self.connection) \
+                   == (other.label, other.wire_name, other.device, other.jack, other.contact, other.connection)
+        except AttributeError:
+            return NotImplemented
+
 
 class Wire:
+    """
+    Container object for two markers.
+
+    Wire can connect two different devices with different or same contacts
+    or two different contacts from same device. Wire can contain only markers with equal wire names.
+    """
+
     def __init__(self, frm: Marker, to: Marker):
         self.frm = frm
         self.to = to
+        self._validate()
 
     @property
     def name(self) -> str:
-        assert self.frm.wire_name == self.to.wire_name
+        self._validate()
         return self.frm.wire_name
 
     def __str__(self) -> str:
@@ -85,6 +103,10 @@ class Wire:
 
     def __repr__(self) -> str:
         return f'Wire(frm={repr(self.frm)}, to={repr(self.to)})'
+
+    def _validate(self):
+        if self.frm.wire_name != self.to.wire_name:
+            raise InvalidMarkersPairException
 
 
 class Device:
@@ -96,16 +118,17 @@ class Device:
         self.wires.extend(wires)
 
     @staticmethod
-    def get_sorting_priority(wire: Wire) -> Union[Tuple[int, str, str], Tuple[int, str, str, str]]:
+    def _get_sorting_priority(wire: Wire) -> Union[Tuple[int, str, str], Tuple[int, str, str, str]]:
         is_internal = 1 if wire.frm.device == wire.to.device else 0
         if wire.frm.jack:
             return is_internal, wire.frm.jack, wire.to.device, wire.frm.contact
         return is_internal, wire.frm.contact, wire.to.device
 
     def sort(self):
-        self.wires = sorted(self.wires, key=self.get_sorting_priority)
+        self.wires = sorted(self.wires, key=self._get_sorting_priority)
         return self
 
+    @property
     def markers(self) -> List[Marker]:
         markers = []
         for wire in self.wires:
