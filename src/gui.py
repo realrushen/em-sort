@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import PySimpleGUI as sg
+import openpyxl
 
 from sorter import Sorter
 from utils import resource_path
@@ -59,8 +60,9 @@ class GUI:
             self.window['-SORT-'].update(disabled=True)
             self.window['-PBAR-'].update_bar(current_count=0)  # FIXME: make progress bar updates dynamic not hardcoded
             file = values['-FILE-']
+            workbook = openpyxl.load_workbook(values['-FILE-'])
             wire_sections = values['-WIRE SECTIONS-']
-            backend.wb = file
+            backend.wb = workbook
             self.window['-PBAR-'].update_bar(current_count=10)
             backend.add_sheets(wire_sections)
             sorted_circuitry = backend.sort()
