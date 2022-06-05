@@ -122,7 +122,7 @@ class Device:
         is_internal = 1 if wire.frm.device == wire.to.device else 0
         if wire.frm.jack:
             return is_internal, wire.frm.jack, wire.to.device, wire.frm.contact
-        return is_internal, wire.frm.contact, wire.to.device
+        return is_internal, wire.to.device, wire.frm.wire_name, wire.frm.contact
 
     def sort(self):
         self.wires = sorted(self.wires, key=self._get_sorting_priority)
