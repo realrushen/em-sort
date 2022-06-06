@@ -1,2 +1,2 @@
 # em-sort
-sorting application for wire markers with gui writen by pysimplegui
+Sorting application for wire markers with gui written with pysimplegui
