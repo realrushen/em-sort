@@ -1,6 +1,6 @@
 # coding=utf-8
 from pathlib import Path
-from typing import Optional, Union, List, Dict
+from typing import Optional, List, Dict
 
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill
