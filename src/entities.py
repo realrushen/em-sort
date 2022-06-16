@@ -98,15 +98,20 @@ class Wire:
         self._validate()
         return self.frm.wire_name
 
+    def _validate(self):
+        if self.frm.wire_name != self.to.wire_name:
+            raise InvalidMarkersPairException
+
     def __str__(self) -> str:
         return f'{self.frm} -> {self.to}'
 
     def __repr__(self) -> str:
         return f'Wire(frm={repr(self.frm)}, to={repr(self.to)})'
 
-    def _validate(self):
-        if self.frm.wire_name != self.to.wire_name:
-            raise InvalidMarkersPairException
+    def __eq__(self, other):
+        if not isinstance(other, type(self)):
+            raise NotImplemented
+        return self.frm == other.frm and self.to == other.to
 
 
 class Device:
@@ -137,3 +142,8 @@ class Device:
 
     def __repr__(self) -> str:
         return f'Device(name={repr(self.name)}, wires={self.wires}'
+
+    def __eq__(self, other):
+        if not isinstance(other, type(self)):
+            raise NotImplemented
+        return self.wires == other.wires and self.name == other.name
