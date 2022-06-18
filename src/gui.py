@@ -49,7 +49,7 @@ class GUI:
                 sg.popup_error_with_traceback('Ошибка', e)
                 self.window['-PBAR-'].update_bar(current_count=0)
             finally:
-                backend.reset()
+                backend = backend.reset()
                 self.window['-SORT-'].update(disabled=False)
 
         self.window.close()

@@ -113,6 +113,10 @@ class Wire:
             raise NotImplemented
         return self.frm == other.frm and self.to == other.to
 
+    @property
+    def markers(self):
+        return self.frm.label, self.to.label
+
 
 class Device:
     def __init__(self, name: str):
@@ -137,7 +141,7 @@ class Device:
     def markers(self) -> List[Marker]:
         markers = []
         for wire in self.wires:
-            markers.extend([wire.frm, wire.to])
+            markers.extend(wire.markers)
         return markers
 
     def __repr__(self) -> str:

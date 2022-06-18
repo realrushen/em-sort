@@ -213,11 +213,11 @@ class TestDevice:
 
     def test_markers_property(self, device_a1):
         expected_markers = [
-            Marker(label='A1:X6-12 959').parse(), Marker(label='X8:34:1 959').parse(),
-            Marker(label='A1:X3-2 1701').parse(), Marker(label='A1:X3-6 1701').parse(),
-            Marker(label='A1:X6-11 960').parse(), Marker(label='X8:36:1 960').parse(),
-            Marker(label='A1:GND2').parse(), Marker(label='A1:X1.1.1-1').parse(),
-            Marker(label='A1:X3-8 881').parse(), Marker(label='SAC3:4.3 881').parse()
+            'A1:X6-12 959', 'X8:34:1 959',
+            'A1:X3-2 1701', 'A1:X3-6 1701',
+            'A1:X6-11 960', 'X8:36:1 960',
+            'A1:GND2', 'A1:X1.1.1-1',
+            'A1:X3-8 881', 'SAC3:4.3 881',
         ]
 
         assert device_a1.markers == expected_markers

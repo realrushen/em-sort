@@ -1,4 +1,6 @@
 # coding=utf-8
+from __future__ import annotations
+
 from pathlib import Path
 from typing import Optional, List, Dict
 
@@ -18,6 +20,7 @@ class Sorter:
     def __init__(self, workbook: Optional[Workbook] = None):
         self._input_wb = workbook
         self._output_wb = Workbook()
+        self._output_wb.remove(self._output_wb.active)  # removes created by default sheet
         self._sheets_for_sort: List[Worksheet] = []
 
     def add_sheets(self, sheets_names: List[str]) -> List[Worksheet]:
@@ -95,11 +98,10 @@ class Sorter:
         filename = f'{file_path.stem}_sorted{file_path.suffix}'
         self._output_wb.save(filename)
 
-    def reset(self, workbook: Optional[Workbook] = None) -> None:
-        """Resets object to empty state"""
-        self._input_wb = workbook
-        self._output_wb = Workbook()
-        self._sheets_for_sort.clear()
+    @classmethod
+    def reset(cls) -> Sorter:
+        """Resets object to initial state"""
+        return cls()
 
     @staticmethod
     def _write_markers(worksheet: Worksheet, devices: List[Device], column: int = 1) -> None:
@@ -109,5 +111,5 @@ class Sorter:
             device_sell.fill = PatternFill(fill_type='solid', start_color='00C0C0C0', end_color='00C0C0C0')
             row += 1
             for marker in device.markers:
-                worksheet.cell(row=row, column=column, value=marker.label)
+                worksheet.cell(row=row, column=column, value=marker)
                 row += 1

@@ -21,6 +21,11 @@ def example_schematic_workbook():
 
 
 @pytest.fixture
+def sorted_example_schematic_workbook():
+    return openpyxl.load_workbook(TEST_DATA_FOLDER / 'schematic1_sorted.xlsx')
+
+
+@pytest.fixture
 def wire_sections_for_sort():
     return ['1,0', '1,5', '2,5']
 
@@ -37,9 +42,8 @@ def sorter_with_test_data(example_schematic_workbook, wire_sections_for_sort):
 
 
 @pytest.fixture
-def expected_sorted_circuitry(wire_sections_for_sort):
-    workbook = openpyxl.load_workbook(TEST_DATA_FOLDER / 'schematic1_sorted.xlsx')
-    sorter = Sorter(workbook=workbook)
+def expected_sorted_circuitry(wire_sections_for_sort, sorted_example_schematic_workbook):
+    sorter = Sorter(workbook=sorted_example_schematic_workbook)
     sorter.add_sheets(wire_sections_for_sort)
 
     sorted_circuitry = {}
@@ -79,6 +83,20 @@ class TestSorter:
         with pytest.raises(SheetDoesNotExistsException):
             sorter_with_test_data.add_sheets(['1,0', '1,5', 4])
 
+    def test_dump_circuitry(self, expected_sorted_circuitry, sorter_with_test_data, wire_sections_for_sort):
+
+        sorter_with_test_data.dump_circuitry(expected_sorted_circuitry)
+
+        assert sorter_with_test_data._output_wb.sheetnames == list(expected_sorted_circuitry.keys())
+        for wire_section in wire_sections_for_sort:
+            dumped_markers = list(map(lambda o: o[0], sorter_with_test_data._output_wb[wire_section].values))
+            expected_dumped_markers = []
+            for device in expected_sorted_circuitry[wire_section]:
+                expected_dumped_markers.append(device.name)
+                for marker in device.markers:
+                    expected_dumped_markers.append(marker)
+            assert dumped_markers == expected_dumped_markers
+
     def test_sort(self, sorter_with_test_data, expected_sorted_circuitry, wire_sections_for_sort):
         sorter_with_test_data.add_sheets(wire_sections_for_sort)
         sorted_circuitry = sorter_with_test_data.sort()
@@ -87,3 +105,9 @@ class TestSorter:
             expected_sorted_section = expected_sorted_circuitry[wire_section]
             for sorted_device, expected_device in zip(sorted_section, expected_sorted_section):
                 assert sorted_device == expected_device
+
+    def test_reset(self, sorter_with_test_data):
+        empty_sorter = sorter_with_test_data.reset()
+        assert empty_sorter._input_wb is None
+        assert len(empty_sorter._output_wb.worksheets) == 0
+        assert len(empty_sorter._sheets_for_sort) == 0
