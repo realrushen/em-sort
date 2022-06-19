@@ -7,7 +7,7 @@ from openpyxl.worksheet.worksheet import Worksheet
 from emsort.exceptions import SheetDoesNotExistsException
 from emsort.sorter import Sorter
 
-TEST_DATA_FOLDER = Path().cwd() / 'testdata'
+TEST_DATA_FOLDER = Path().cwd() / 'tests' / 'testdata'
 
 
 @pytest.fixture
