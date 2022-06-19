@@ -1,4 +1,4 @@
-from app import App
+from emsort.app import App
 
 
 # FIXME: add logging

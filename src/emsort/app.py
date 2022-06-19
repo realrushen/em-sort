@@ -1,5 +1,5 @@
-from gui import GUI
-from sorter import Sorter
+from emsort.gui import GUI
+from emsort.sorter import Sorter
 
 
 class App:
@@ -9,4 +9,3 @@ class App:
 
     def start(self):
         self.gui.start(backend=self.backend)
-

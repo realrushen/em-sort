@@ -8,9 +8,9 @@ from openpyxl import Workbook
 from openpyxl.styles import PatternFill
 from openpyxl.worksheet.worksheet import Worksheet
 
-from entities import Device, Marker, Wire
-from exceptions import UnsupportedTypeException, SheetDoesNotExistsException
-from utils import pairwise
+from emsort.entities import Device, Marker, Wire
+from emsort.exceptions import UnsupportedTypeException, SheetDoesNotExistsException
+from emsort.utils import pairwise
 
 
 class Sorter:
@@ -26,7 +26,7 @@ class Sorter:
     def add_sheets(self, sheets_names: List[str]) -> List[Worksheet]:
         for name in sheets_names:
             try:
-                self._sheets_for_sort.append(self.wb[name])
+                self._sheets_for_sort.append(self.wb[name])  # type: ignore
             except KeyError:
                 raise SheetDoesNotExistsException(f'Worksheet {name} does not exist.')
         return self._sheets_for_sort
@@ -72,8 +72,8 @@ class Sorter:
 
     @staticmethod
     def _load_sheet_contents(worksheet: Worksheet, column: str = INPUT_DATA_COLUMN) -> Dict[str, List[str]]:
-        devices_in_sheet = {}
-        current_device = None
+        devices_in_sheet: Dict[str, List[str]] = dict()
+        current_device: str = ''
 
         for cell in worksheet[column]:
             if 'Device' in cell.value:

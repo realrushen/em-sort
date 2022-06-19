@@ -1,7 +1,7 @@
 # coding=utf-8
-from typing import List, Tuple, Union, Optional
+from typing import List, Tuple, Optional
 
-from exceptions import UnsupportedMarkerFormatException, InvalidMarkersPairException
+from emsort.exceptions import UnsupportedMarkerFormatException, InvalidMarkersPairException
 
 
 class Marker:
@@ -50,14 +50,14 @@ class Marker:
     @property
     def address(self) -> str:
         if self.jack:
-            address_params = [self.device, self.JACK_SEP.join([self.jack, self.contact])]
+            address_params = [self.device, self.JACK_SEP.join([self.jack, self.contact])]  # type: ignore
         else:
             address_params = [self.device, self.contact]
 
         if self.connection:
             address_params.append(self.connection)
 
-        return self.ADDRESS_SEP.join(address_params)
+        return self.ADDRESS_SEP.join(address_params)  # type: ignore
 
     def __repr__(self) -> str:
         marker_repr = repr(self.label)
@@ -94,7 +94,7 @@ class Wire:
         self._validate()
 
     @property
-    def name(self) -> str:
+    def name(self) -> Optional[str]:
         self._validate()
         return self.frm.wire_name
 
@@ -110,7 +110,7 @@ class Wire:
 
     def __eq__(self, other):
         if not isinstance(other, type(self)):
-            raise NotImplemented
+            raise NotImplementedError
         return self.frm == other.frm and self.to == other.to
 
     @property
@@ -127,7 +127,7 @@ class Device:
         self.wires.extend(wires)
 
     @staticmethod
-    def _get_sorting_priority(wire: Wire) -> Union[Tuple[int, str, str], Tuple[int, str, str, str]]:
+    def _get_sorting_priority(wire: Wire) -> Tuple[int, Optional[str], Optional[str], Optional[str]]:
         is_internal = 1 if wire.frm.device == wire.to.device else 0
         if wire.frm.jack:
             return is_internal, wire.frm.jack, wire.to.device, wire.frm.contact
@@ -138,7 +138,7 @@ class Device:
         return self
 
     @property
-    def markers(self) -> List[Marker]:
+    def markers(self) -> list[str]:
         markers = []
         for wire in self.wires:
             markers.extend(wire.markers)
@@ -149,5 +149,5 @@ class Device:
 
     def __eq__(self, other):
         if not isinstance(other, type(self)):
-            raise NotImplemented
+            raise NotImplementedError
         return self.wires == other.wires and self.name == other.name

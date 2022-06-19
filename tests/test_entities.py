@@ -1,8 +1,8 @@
 import pytest
 from contextlib import nullcontext as does_not_raise
 
-from entities import Marker, Wire, Device
-from exceptions import UnsupportedMarkerFormatException, InvalidMarkersPairException
+from emsort.entities import Marker, Wire, Device
+from emsort.exceptions import UnsupportedMarkerFormatException, InvalidMarkersPairException
 
 
 @pytest.fixture

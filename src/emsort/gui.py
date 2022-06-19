@@ -3,8 +3,8 @@ from pathlib import Path
 import PySimpleGUI as sg
 import openpyxl
 
-from sorter import Sorter
-from utils import resource_path
+from emsort.sorter import Sorter
+from emsort.utils import resource_path
 
 ASSETS_DIR = resource_path('assets')
 

@@ -4,8 +4,8 @@ import openpyxl
 import pytest
 from openpyxl.worksheet.worksheet import Worksheet
 
-from exceptions import SheetDoesNotExistsException
-from sorter import Sorter
+from emsort.exceptions import SheetDoesNotExistsException
+from emsort.sorter import Sorter
 
 TEST_DATA_FOLDER = Path().cwd() / 'testdata'
 
@@ -72,9 +72,16 @@ class TestSorter:
         empty_sorter.wb = example_schematic_workbook
         assert id(empty_sorter.wb) == id(example_schematic_workbook)
 
-    def test_add_sheets(self, sorter_with_test_data):
-        sorter_with_test_data.add_sheets(['1,0', '1,5', '2,5'])
-        assert len(sorter_with_test_data._sheets_for_sort) == 3
+    @pytest.mark.parametrize(
+        'sheets,expected',
+        [
+            [['1,0', '1,5', '2,5'], 3],
+            [[], 0],
+        ]
+    )
+    def test_add_sheets(self, sorter_with_test_data, sheets, expected):
+        sorter_with_test_data.add_sheets(sheets)
+        assert len(sorter_with_test_data._sheets_for_sort) == expected
 
         for sheet in sorter_with_test_data._sheets_for_sort:
             assert isinstance(sheet, Worksheet)
