@@ -19,6 +19,7 @@ class GUI:
             sg.FileBrowse('Выбрать', key='-SELECT FILE-')
         ],
         [sg.Text('Листы для сортировки', expand_x=True, justification='center')],
+
         [sg.Listbox(
             values=['1,0', '1,5', '2,5', '4,0', '6,0'],
             select_mode=sg.LISTBOX_SELECT_MODE_MULTIPLE,
@@ -27,6 +28,7 @@ class GUI:
             key='-WIRE SECTIONS-')],
         [sg.ProgressBar(100, orientation='h', s=(20, 20), expand_x=True, bar_color=('blue', 'LightSteelBlue3'),
                         k='-PBAR-')],
+        [sg.Checkbox('сортировать в исходном файле', default=False, key='-IN PLACE-')],
         [sg.Button('Сортировать', expand_x=True, k='-SORT-'), sg.CloseButton('Выход')],
     ]
 
@@ -46,7 +48,7 @@ class GUI:
             try:
                 self.handle_event(backend=backend, event=event, values=values)
             except Exception as e:  # FIXME: add exception handling for different use cases
-                sg.popup_error_with_traceback('Ошибка', e)
+                sg.popup_error_with_traceback('Ошибка', e.args)
                 self.window['-PBAR-'].update_bar(current_count=0)
             finally:
                 backend = backend.reset()
@@ -59,15 +61,21 @@ class GUI:
         if event == '-SORT-':
             self.window['-SORT-'].update(disabled=True)
             self.window['-PBAR-'].update_bar(current_count=0)  # FIXME: make progress bar updates dynamic not hardcoded
+
+            # get user input values
             file = values['-FILE-']
-            workbook = openpyxl.load_workbook(values['-FILE-'])
             wire_sections = values['-WIRE SECTIONS-']
-            backend.wb = workbook
+            in_place = values['-IN PLACE-']
+
+            # sort markers
+            backend.wb = openpyxl.load_workbook(file)
             self.window['-PBAR-'].update_bar(current_count=10)
             backend.add_sheets(wire_sections)
-            sorted_circuitry = backend.sort()
+            backend.sort()
             self.window['-PBAR-'].update_bar(current_count=25)
-            backend.dump_circuitry(circuitry=sorted_circuitry)
+            backend.dump_circuitry()
             self.window['-PBAR-'].update_bar(current_count=75)
-            backend.save_to_file(Path(file))
+
+            # save from memory to disc
+            backend.save_to_file(Path(file), in_place=in_place)
             self.window['-PBAR-'].update_bar(current_count=100)

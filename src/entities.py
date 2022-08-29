@@ -1,5 +1,5 @@
 # coding=utf-8
-from typing import List, Tuple, Union, Optional
+from typing import List, Tuple, Optional
 
 from exceptions import UnsupportedMarkerFormatException, InvalidMarkersPairException
 
@@ -17,6 +17,7 @@ class Marker:
         self.jack: Optional[str] = None
         self.contact: Optional[str] = None
         self.connection: Optional[str] = None
+        self.unsupported_format = False
 
     def parse(self):
         """
@@ -31,19 +32,22 @@ class Marker:
         elif self.label.count(self.WIRE_SEP) == 0:
             address = self.label
         else:
-            raise UnsupportedMarkerFormatException
+            self.unsupported_format = True
+            raise UnsupportedMarkerFormatException(f'Parsing failed on marker with label: {repr(self.label)}')
 
         if self.label.count(self.ADDRESS_SEP) == 1:
             self.device, self.contact = address.split(self.ADDRESS_SEP)
         elif self.label.count(self.ADDRESS_SEP) == 2:
             self.device, self.contact, self.connection = address.split(self.ADDRESS_SEP)
         else:
+            self.unsupported_format = True
             raise UnsupportedMarkerFormatException
 
         if self.contact.count(self.JACK_SEP) == 1:
             self.jack, self.contact = self.contact.split(self.JACK_SEP)
             # check that self.jack and self.contact contains useful information
             if not self.jack or not self.contact:
+                self.unsupported_format = True
                 raise UnsupportedMarkerFormatException
         return self
 
@@ -88,18 +92,21 @@ class Wire:
     or two different contacts from same device. Wire can contain only markers with equal wire names.
     """
 
-    def __init__(self, frm: Marker, to: Marker):
+    def __init__(self, frm: Marker, to: Marker, section: str):
         self.frm = frm
         self.to = to
         self._validate()
+        self.section = section
 
     @property
     def name(self) -> str:
         self._validate()
         return self.frm.wire_name
 
-    def _validate(self):
-        if self.frm.wire_name != self.to.wire_name:
+    def _validate(self) -> None:
+        is_different_wire_names = self.frm.wire_name != self.to.wire_name
+        both_markers_have_supported_format = not self.frm.unsupported_format and not self.to.unsupported_format
+        if is_different_wire_names and both_markers_have_supported_format:
             raise InvalidMarkersPairException
 
     def __str__(self) -> str:
@@ -127,7 +134,10 @@ class Device:
         self.wires.extend(wires)
 
     @staticmethod
-    def _get_sorting_priority(wire: Wire) -> Union[Tuple[int, str, str], Tuple[int, str, str, str]]:
+    def _get_sorting_priority(wire: Wire) -> Tuple[int, str, str, str]:
+        if wire.frm.unsupported_format or wire.to.unsupported_format:
+            lowest_priority = 0, '', '', ''
+            return lowest_priority
         is_internal = 1 if wire.frm.device == wire.to.device else 0
         if wire.frm.jack:
             return is_internal, wire.frm.jack, wire.to.device, wire.frm.contact
@@ -151,3 +161,8 @@ class Device:
         if not isinstance(other, type(self)):
             raise NotImplemented
         return self.wires == other.wires and self.name == other.name
+
+
+class Schematic:
+    def __init__(self):
+        self.sections = {}

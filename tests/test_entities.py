@@ -22,7 +22,7 @@ def wire_markers_pair():
 
 @pytest.fixture
 def valid_wire(wire_markers_pair):
-    return Wire(frm=wire_markers_pair[0], to=wire_markers_pair[1])
+    return Wire(frm=wire_markers_pair[0], to=wire_markers_pair[1], section='1.0')
 
 
 @pytest.fixture
@@ -33,16 +33,16 @@ def device_without_wires():
 @pytest.fixture
 def list_of_10_wires():
     return [
-        Wire(frm=Marker('A1:X6-12 959').parse(), to=Marker('X8:34:1 959').parse()),
-        Wire(frm=Marker('A1:X3-2 1701').parse(), to=Marker('A1:X3-6 1701').parse()),
-        Wire(frm=Marker('A1:X6-11 960').parse(), to=Marker('X8:36:1 960').parse()),
-        Wire(frm=Marker('A1:GND2').parse(), to=Marker('A1:X1.1.1-1').parse()),
-        Wire(frm=Marker('A1:X3-8 881').parse(), to=Marker('SAC3:4.3 881').parse()),
-        Wire(frm=Marker('SF2:3 +EC').parse(), to=Marker('SF4:3 +EC').parse()),
-        Wire(frm=Marker('XS1:16 43-TH1').parse(), to=Marker('X4:26:1 43-TH1').parse()),
-        Wire(frm=Marker('SQP1:21 81').parse(), to=Marker('X2:62:2 81').parse()),
-        Wire(frm=Marker('TAB1:4И1 N411').parse(), to=Marker('X1:39:1 N411').parse()),
-        Wire(frm=Marker('SFB1:1 -EC').parse(), to=Marker('SFT1:1 -EC').parse()),
+        Wire(frm=Marker('A1:X6-12 959').parse(), to=Marker('X8:34:1 959').parse(), section='1,0'),
+        Wire(frm=Marker('A1:X3-2 1701').parse(), to=Marker('A1:X3-6 1701').parse(), section='1,0'),
+        Wire(frm=Marker('A1:X6-11 960').parse(), to=Marker('X8:36:1 960').parse(), section='1,0'),
+        Wire(frm=Marker('A1:GND2').parse(), to=Marker('A1:X1.1.1-1').parse(), section='1,0'),
+        Wire(frm=Marker('A1:X3-8 881').parse(), to=Marker('SAC3:4.3 881').parse(), section='1,0'),
+        Wire(frm=Marker('SF2:3 +EC').parse(), to=Marker('SF4:3 +EC').parse(), section='1,0'),
+        Wire(frm=Marker('XS1:16 43-TH1').parse(), to=Marker('X4:26:1 43-TH1').parse(), section='1,0'),
+        Wire(frm=Marker('SQP1:21 81').parse(), to=Marker('X2:62:2 81').parse(), section='1,0'),
+        Wire(frm=Marker('TAB1:4И1 N411').parse(), to=Marker('X1:39:1 N411').parse(), section='1,0'),
+        Wire(frm=Marker('SFB1:1 -EC').parse(), to=Marker('SFT1:1 -EC').parse(), section='1,0'),
     ]
 @pytest.fixture
 def device_a1(list_of_10_wires):
@@ -168,7 +168,7 @@ class TestWire:
         first_marker = Marker(label=first).parse()
         second_marker = Marker(label=second).parse()
         with expectation:
-            wire = Wire(frm=first_marker, to=second_marker)
+            wire = Wire(frm=first_marker, to=second_marker, section='1,0')
             assert wire.name == expected_name
             assert (wire.frm, wire.to) == (first_marker, second_marker)
 
@@ -197,13 +197,13 @@ class TestDevice:
     @pytest.mark.parametrize(
         'wire,expected_priority',
         [
-            pytest.param(Wire(frm=Marker('A1:X5-1 2').parse(), to=Marker('A1:X5-3 2').parse()), (1, 'X5', 'A1', '1')),
-            pytest.param(Wire(frm=Marker('A1:X5-2 29').parse(), to=Marker('X5:18:1 29').parse()), (0, 'X5', 'X5', '2')),
+            pytest.param(Wire(frm=Marker('A1:X5-1 2').parse(), to=Marker('A1:X5-3 2').parse(), section='1,0'), (1, 'X5', 'A1', '1')),
+            pytest.param(Wire(frm=Marker('A1:X5-2 29').parse(), to=Marker('X5:18:1 29').parse(), section='1,0'), (0, 'X5', 'X5', '2')),
             pytest.param(
-                Wire(frm=Marker('SAC3:2.3 1').parse(), to=Marker('SAC3:1.1 1').parse()), (1, 'SAC3', '1', '2.3')
+                Wire(frm=Marker('SAC3:2.3 1').parse(), to=Marker('SAC3:1.1 1').parse(), section='1,0'), (1, 'SAC3', '1', '2.3')
             ),
             pytest.param(
-                Wire(frm=Marker('ADR1:2 D13').parse(), to=Marker('X0:20:1 D13').parse()), (0, 'X0', 'D13', '2')
+                Wire(frm=Marker('ADR1:2 D13').parse(), to=Marker('X0:20:1 D13').parse(), section='1,0'), (0, 'X0', 'D13', '2')
             ),
         ]
     )
