@@ -165,4 +165,29 @@ class Device:
 
 class Schematic:
     def __init__(self):
-        self.sections = {}
+        self.content = {}
+
+    def add_devices(self, devices: List[Device], section: str) -> None:
+        """add devices with exact wire section"""
+        self.content[section] = devices
+
+    @property
+    def all_devices(self) -> List[Device]:
+        all_devices = []
+        for section_devices in self.content.values():
+            all_devices.extend(section_devices)
+        return all_devices
+
+    @property
+    def all_wires(self) -> List[Wire]:
+        all_wires = []
+        for device in self.all_devices:
+            all_wires.extend(device.wires)
+        return all_wires
+
+    def get_all_device_wires(self, name: str):
+        device_wires = []
+        for device in self.all_devices:
+            if device.name == f'Device {name}':
+                device_wires.extend(device.wires)
+        return device_wires

@@ -8,7 +8,7 @@ from openpyxl import Workbook
 from openpyxl.styles import PatternFill
 from openpyxl.worksheet.worksheet import Worksheet
 
-from entities import Device
+from entities import Device, Schematic
 from exceptions import UnsupportedTypeException, SheetDoesNotExistsException
 from parser import Parser
 
@@ -21,8 +21,8 @@ class Sorter:
         self._input_wb = workbook
         self._output_wb = Workbook()
 
-        self.schematic = {}
-        self.parser = Parser(workbook, self.schematic)
+        self.schematic = Schematic()
+        self.parser = Parser(workbook, self.schematic.content)
         self._sheets_for_sort: List[str] = []
 
         # remove created by default sheet
@@ -51,13 +51,13 @@ class Sorter:
 
     def sort(self):
         self.parser.parse()
-        for wire_section, devices in self.schematic.items():
+        for wire_section, devices in self.schematic.content.items():
             if wire_section in self._sheets_for_sort:
                 for device in devices:
                     device.sort()
 
     def dump_circuitry(self) -> None:
-        for wire_section, devices in self.schematic.items():
+        for wire_section, devices in self.schematic.content.items():
             worksheet = self._output_wb.create_sheet(wire_section)
             self._write_markers(worksheet=worksheet, devices=devices)
 

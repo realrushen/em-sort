@@ -6,11 +6,6 @@ from sorter import Sorter
 
 
 @pytest.fixture
-def wire_sections_for_sort():
-    return ['1,0', '1,5', '2,5']
-
-
-@pytest.fixture
 def empty_sorter():
     return Sorter()
 
@@ -19,15 +14,6 @@ def empty_sorter():
 def sorter_with_test_data(example_schematic_workbook, wire_sections_for_sort):
     sorter = Sorter(workbook=example_schematic_workbook)
     return sorter
-
-
-@pytest.fixture
-def expected_sorted_schematic(wire_sections_for_sort, sorted_example_schematic_workbook):
-    sorter = Sorter(workbook=sorted_example_schematic_workbook)
-    sorter.add_sheets(wire_sections_for_sort)
-
-    sorter.sort()
-    return sorter.schematic
 
 
 class TestSorter:
@@ -78,8 +64,9 @@ class TestSorter:
         sorter_with_test_data.add_sheets(wire_sections_for_sort)
         sorter_with_test_data.sort()
 
-        for wire_section in sorter_with_test_data.schematic.keys():
-            sorted_devices = sorter_with_test_data.schematic[wire_section]
+        schematic_sections = sorter_with_test_data.schematic.content.keys()
+        for wire_section in schematic_sections:
+            sorted_devices = sorter_with_test_data.schematic.content[wire_section]
             expected_devices = expected_sorted_schematic[wire_section]
             assert len(sorted_devices) == len(expected_devices)
 

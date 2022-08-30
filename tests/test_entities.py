@@ -1,8 +1,12 @@
+from copy import deepcopy
+from pprint import pprint
+
 import pytest
 from contextlib import nullcontext as does_not_raise
 
-from entities import Marker, Wire, Device
+from entities import Marker, Wire, Device, Schematic
 from exceptions import UnsupportedMarkerFormatException, InvalidMarkersPairException
+from utils import flatten_list
 
 
 @pytest.fixture
@@ -44,12 +48,35 @@ def list_of_10_wires():
         Wire(frm=Marker('TAB1:4И1 N411').parse(), to=Marker('X1:39:1 N411').parse(), section='1,0'),
         Wire(frm=Marker('SFB1:1 -EC').parse(), to=Marker('SFT1:1 -EC').parse(), section='1,0'),
     ]
+
+
 @pytest.fixture
 def device_a1(list_of_10_wires):
     wires = list_of_10_wires[:5]
     device = Device('Device A1')
     device.add_wires(wires)
     return device
+
+
+@pytest.fixture
+def empty_schematic():
+    return Schematic()
+
+
+@pytest.fixture
+def schematic_with_content(empty_schematic, expected_sorted_schematic):
+    empty_schematic.content = deepcopy(expected_sorted_schematic)
+    return empty_schematic
+
+
+@pytest.fixture
+def expected_all_devices(schematic_with_content):
+    return flatten_list(schematic_with_content.content.values())
+
+
+@pytest.fixture
+def expected_all_wires(expected_all_devices):
+    return flatten_list([device.wires for device in expected_all_devices])
 
 
 class TestMarker:
@@ -148,7 +175,6 @@ class TestMarker:
         assert [marker1, marker2] != [marker1, marker2, marker3]
 
 
-
 class TestWire:
     @pytest.mark.parametrize(
         'first,second,expected_name,expectation',
@@ -197,13 +223,17 @@ class TestDevice:
     @pytest.mark.parametrize(
         'wire,expected_priority',
         [
-            pytest.param(Wire(frm=Marker('A1:X5-1 2').parse(), to=Marker('A1:X5-3 2').parse(), section='1,0'), (1, 'X5', 'A1', '1')),
-            pytest.param(Wire(frm=Marker('A1:X5-2 29').parse(), to=Marker('X5:18:1 29').parse(), section='1,0'), (0, 'X5', 'X5', '2')),
+            pytest.param(Wire(frm=Marker('A1:X5-1 2').parse(), to=Marker('A1:X5-3 2').parse(), section='1,0'),
+                         (1, 'X5', 'A1', '1')),
+            pytest.param(Wire(frm=Marker('A1:X5-2 29').parse(), to=Marker('X5:18:1 29').parse(), section='1,0'),
+                         (0, 'X5', 'X5', '2')),
             pytest.param(
-                Wire(frm=Marker('SAC3:2.3 1').parse(), to=Marker('SAC3:1.1 1').parse(), section='1,0'), (1, 'SAC3', '1', '2.3')
+                Wire(frm=Marker('SAC3:2.3 1').parse(), to=Marker('SAC3:1.1 1').parse(), section='1,0'),
+                (1, 'SAC3', '1', '2.3')
             ),
             pytest.param(
-                Wire(frm=Marker('ADR1:2 D13').parse(), to=Marker('X0:20:1 D13').parse(), section='1,0'), (0, 'X0', 'D13', '2')
+                Wire(frm=Marker('ADR1:2 D13').parse(), to=Marker('X0:20:1 D13').parse(), section='1,0'),
+                (0, 'X0', 'D13', '2')
             ),
         ]
     )
@@ -224,3 +254,25 @@ class TestDevice:
 
     def test_dander_repr(self, device_a1):
         assert repr(device_a1) == f'Device(name={repr(device_a1.name)}, wires={device_a1.wires}'
+
+
+class TestSchematic:
+    def test_add_devices(self, empty_schematic, expected_sorted_schematic):
+        wire_section = '1,0'
+        devices = expected_sorted_schematic[wire_section]
+        empty_schematic.add_devices(devices=devices, section=wire_section)
+        assert empty_schematic.content[wire_section] == devices
+
+    def test_all_devices_property(self, schematic_with_content, expected_all_devices):
+        assert schematic_with_content.all_devices == expected_all_devices
+
+    def test_all_wires_property(self, schematic_with_content, expected_all_wires):
+        assert schematic_with_content.all_wires == expected_all_wires
+
+    def test_get_all_device_wires(self, schematic_with_content):
+        all_wires = schematic_with_content.get_all_device_wires('U1')
+
+        assert len(all_wires) == 19
+
+        for wire in all_wires:
+            assert wire.frm.device == 'U1'
