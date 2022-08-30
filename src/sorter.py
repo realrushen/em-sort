@@ -63,7 +63,7 @@ class Sorter:
 
     def save_to_file(self, target_file_path: Path, in_place=False) -> None:
         if not in_place:
-            target_file_path.with_name(f'{target_file_path.stem}_sorted')
+            target_file_path = target_file_path.with_name(f'{target_file_path.stem}_sorted.xlsx')
         self._output_wb.save(target_file_path)
 
     @classmethod
