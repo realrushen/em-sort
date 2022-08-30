@@ -62,10 +62,9 @@ class Sorter:
             self._write_markers(worksheet=worksheet, devices=devices)
 
     def save_to_file(self, target_file_path: Path, in_place=False) -> None:
-        filename = f'{target_file_path.stem}_sorted{target_file_path.suffix}'
-        if in_place:
-            filename = target_file_path
-        self._output_wb.save(filename)
+        if not in_place:
+            target_file_path.with_name(f'{target_file_path.stem}_sorted')
+        self._output_wb.save(target_file_path)
 
     @classmethod
     def reset(cls) -> Sorter:

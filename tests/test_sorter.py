@@ -97,14 +97,13 @@ class TestSorter:
         sorter_with_test_data.sort()
         sorter_with_test_data.dump_circuitry()
 
-        filename = 'out1'
-        suffix = '.xlsx'
-        save_path = tmp_path / f'{filename}{suffix}'
+        save_path = tmp_path / 'out.xlsx'
 
         sorter_with_test_data.save_to_file(save_path, in_place=True)
         assert save_path.exists()
         assert save_path.is_file()
 
         sorter_with_test_data.save_to_file(save_path)
+        save_path.with_name(f'{save_path.stem}_sorted')
         assert save_path.exists()
         assert save_path.is_file()
