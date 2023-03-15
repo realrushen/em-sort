@@ -5,7 +5,9 @@ on: push
 jobs:
   test-windows:
     strategy:
-      matrix: [ "ubuntu-latest",  "windows-latest" ]
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: ['3.9']
     defaults:
       run:
         shell: bash
