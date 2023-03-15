@@ -1,6 +1,7 @@
+
 [tool.poetry]
 name = "em-sort"
-version = "0.1.0"
+version = "0.0.1"
 description = ""
 authors = ["Karakchiev Aleksandr <realrushen@gmail.com>"]
 
@@ -12,7 +13,33 @@ PySimpleGUI = "^4.60.0"
 [tool.poetry.dev-dependencies]
 pyinstaller = "^5.1"
 pytest = "^7.1.2"
+flake8 = "^4.0.1"
+tox = "^3.25.0"
+pytest-cov = "^3.0.0"
+mypy = "^0.961"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+pythonpath = ["src"]
+addopts = "--cov=emsort"
+testpaths = [
+    "tests",
+]
+
+[tool.mypy]
+mypy_path = "src"
+check_untyped_defs = true
+disallow_any_generics = true
+ignore_missing_imports = true
+no_implicit_optional = true
+show_error_codes = true
+strict_equality = true
+warn_redundant_casts = true
+warn_return_any = true
+warn_unreachable = true
+warn_unused_configs = true
+no_implicit_reexport = true
