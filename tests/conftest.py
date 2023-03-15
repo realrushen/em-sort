@@ -1,11 +1,15 @@
+import os
 from pathlib import Path
 
+import dotenv
 import openpyxl
 import pytest
 
 from sorter import Sorter
 
-TEST_DATA_FOLDER = Path().cwd() / 'testdata'
+dotenv.load_dotenv()
+
+TEST_DATA_FOLDER = Path(os.getenv('TEST_DATA_FOLDER'))
 
 
 @pytest.fixture
