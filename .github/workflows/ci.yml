@@ -5,7 +5,7 @@ on: push
 jobs:
   test-windows:
     strategy:
-      matrix: [ "ubuntu-latest", "windows-latest" ]
+      matrix: [ "ubuntu-latest",  "windows-latest" ]
     defaults:
       run:
         shell: bash
@@ -33,8 +33,6 @@ jobs:
         run: poetry install --no-interaction --no-root
       - name: Install library
         run: poetry install --no-interaction
-      - run: |
-          source $VENV
-          poetry run pytest
+      - run: source $VENV poetry run pytest
         env:
           TEST_DATA_FOLDER: ${{ github.workspace }}/tests/testdata
